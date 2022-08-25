@@ -1,8 +1,16 @@
 const Tour = require("../model/tour");
+const GlobalFilter = require("../utils/GlobalFilter");
 
 exports.getAllTours = async (req, res) => {
   try {
-    const tours = await Tour.find();
+    let allTours = new GlobalFilter(Tour.find(), req.query);
+    allTours
+    .filter()
+    .sort()
+    .fields()
+    .paginate();
+
+    const tours = await allTours.query;
 
     res.json({
       success: true,
