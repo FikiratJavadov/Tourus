@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const slugify = require("slugify");
 
 const tourSchema = mongoose.Schema(
   {
@@ -39,6 +40,12 @@ const tourSchema = mongoose.Schema(
       required: [true, "Tour summary must be defined!"],
     },
 
+    slug: String,
+    status: {
+      type: Number,
+      enum: [0, 1],
+    },
+
     description: {
       type: String,
     },
@@ -57,8 +64,37 @@ const tourSchema = mongoose.Schema(
       required: [true, "Tour dates must be defined!"],
     },
   },
-  { timestamps: true }
+  { timestamps: true, toJSON: { virtuals: true } }
 );
+
+//Virtual fields: Create
+// tourSchema.virtual("weeks").get(function () {
+//   return this.duration / 7
+// });
+
+//Document base middleware - Before create/after create
+tourSchema.pre("save", function (next) {
+  this.slug = slugify(this.name, "-");
+  next();
+});
+
+// tourSchema.post("save", function (doc, next) {
+//   this.slug = slugify(this.name, "-");
+//   next();
+// });
+
+//Query based middlware
+tourSchema.pre(/^find/, function (next) {
+  this.find({ status: 0 });
+  next();
+});
+
+//Aggregation middleware
+tourSchema.pre("aggregate", function (next) {
+  const pipelines = this.pipeline();
+  pipelines.unshift({$match:{status: {$exists: false}}})
+  next();
+});
 
 const Tour = mongoose.model("tour", tourSchema);
 
