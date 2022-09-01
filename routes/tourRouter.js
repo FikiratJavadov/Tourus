@@ -9,5 +9,7 @@ router.get("/tour-stats/:year", tourController.getTourStats);
 router.get("/top-3", setHeaderQuery, tourController.getAllTours);
 router.get("/:id", tourController.getOneTour);
 router.post("/", tourController.createTour);
+router.patch("/:id", tourController.updateTour);
+router.delete("/:id", tourController.deleteTour);
 
 module.exports = router;
