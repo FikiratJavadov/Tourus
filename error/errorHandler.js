@@ -30,10 +30,7 @@ const handlerCastError = (err) => {
 };
 
 const handleValidationError = (err) => {
-  let er = "";
-  Object.values(err.errors).forEach((e) => {
-    er += e.message;
-  });
+  const er = Object.values(err.errors).join(",");
 
   return new GlobalError(er);
 

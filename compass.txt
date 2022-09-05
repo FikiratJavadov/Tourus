@@ -1,0 +1,1 @@
+mongodb+srv://fikret:12345@cluster0.ok9ke.mongodb.net/test

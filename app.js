@@ -6,6 +6,7 @@ const errorHandler = require("./error/errorHandler");
 const GlobalError = require("./error/GlobalError");
 
 const toursRouter = require("./routes/tourRouter");
+const userRouter = require("./routes/userRouter");
 
 const app = express();
 
@@ -16,6 +17,7 @@ app.use(express.json());
 
 //!Routes
 app.use("/api/v1/tours", toursRouter);
+app.use("/api/v1/users", userRouter);
 
 app.use((req, res, next) => {
   const message = new GlobalError(`The ${req.originalUrl} does not exist`);
@@ -34,9 +36,5 @@ mongoose.connect(DB, (err) => {
 
   app.listen(PORT, () => console.log(`Server running in PORT: ${PORT}`));
 });
-
-
-
-
 
 //! Running the server
