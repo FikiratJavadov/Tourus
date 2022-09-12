@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const GlobalError = require("../error/GlobalError");
 const sendEmail = require("../utils/email");
 const bcrypt = require("bcryptjs");
+const crypto = require("crypto");
 
 function signJWT(id) {
   const token = jwt.sign({ id: id }, process.env.JWT_SIGNATURE, {
@@ -65,6 +66,7 @@ exports.forgetPassword = asyncCatch(async (req, res, next) => {
   });
 
   res.json({
+    message: "Email sent",
     success: true,
   });
 });
@@ -72,5 +74,48 @@ exports.forgetPassword = asyncCatch(async (req, res, next) => {
 exports.resetPassword = asyncCatch(async (req, res, next) => {
   const token = req.params.token;
 
-  // const isSame = await bcrypt.compare(token);
+  const hashPassword = crypto.createHash("md5").update(token).digest("hex");
+
+  const user = await User.findOne({
+    forgetPassword: hashPassword,
+    resetExpires: { $gt: new Date() },
+  });
+
+  if (!user) return next(new GlobalError("Token invalid or expired!", 401));
+
+  user.password = req.body.password;
+  user.passwordConfirm = req.body.passwordConfirm;
+  user.resetExpires = undefined;
+  user.forgetPassword = undefined;
+  await user.save();
+
+  const newToken = signJWT(user._id);
+
+  res.status(201).json({
+    success: true,
+    token: newToken,
+  });
+});
+
+exports.changePassword = asyncCatch(async (req, res, next) => {
+  const user = await User.findById(req.user._id).select("+password");
+
+  const isPasswordCorrect = await user.checkPassword(
+    req.body.currentPassword,
+    user.password
+  );
+
+  if (!isPasswordCorrect)
+    return next(new GlobalError("Incorrect old password!", 403));
+
+  user.password = req.body.password;
+  user.passwordConfirm = req.body.passwordConfirm;
+  user.save();
+
+  const token = signJWT(user._id);
+
+  res.status(201).json({
+    success: true,
+    token,
+  });
 });

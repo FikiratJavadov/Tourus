@@ -46,9 +46,10 @@ const userSchema = mongoose.Schema(
     },
 
     forgetPassword: {
-      required: true,
       type: String,
     },
+
+    resetExpires: Date,
   },
   { timestamps: true }
 );
@@ -71,11 +72,17 @@ userSchema.methods.checkPassword = async function (
 };
 
 userSchema.methods.generatePassToken = async function () {
-  const resetToken = crypto.randomBytes(48).toString("hex");
+  const resetToken = crypto.randomBytes(48).toString("hex"); //3216387126
 
-  const hashPassword = await bcrypt.hash(resetToken, 8);
+  const hashPassword = crypto
+    .createHash("md5")
+    .update(resetToken)
+    .digest("hex");
 
   this.forgetPassword = hashPassword;
+  this.resetExpires = Date.now() + 15 * 60 * 1000;
+
+  console.log(Date.now() + 15 * 60 * 1000);
 
   console.log(hashPassword);
 
