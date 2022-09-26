@@ -2,9 +2,10 @@ const Tour = require("../model/tour");
 const GlobalFilter = require("../utils/GlobalFilter");
 const { asyncCatch } = require("../utils/asyncCatch");
 const GlobalError = require("../error/GlobalError");
+const { deleteOne } = require("../utils/factory");
 
 exports.getAllTours = asyncCatch(async (req, res, next) => {
-  let allTours = new GlobalFilter(Tour.find(), req.query);
+  let allTours = new GlobalFilter(Tour.find().populate("guides"), req.query);
   allTours.filter().sort().fields().paginate();
 
   const tours = await allTours.query;
@@ -24,7 +25,9 @@ exports.getAllTours = asyncCatch(async (req, res, next) => {
 exports.getOneTour = asyncCatch(async (req, res, next) => {
   const id = req.params.id;
 
-  const oneTour = await Tour.findById(id);
+  const oneTour = await Tour.findById(id)
+    .populate("guides")
+    .populate("reviews");
 
   if (!oneTour) return next(new GlobalError("Invalid Id: FINDONE", 404));
 
@@ -53,18 +56,7 @@ exports.updateTour = asyncCatch(async (req, res, next) => {
   });
 });
 
-exports.deleteTour = asyncCatch(async (req, res, next) => {
-  const id = req.params.id;
-
-  const deleted = await Tour.findByIdAndRemove(id);
-
-  if (!deleted) return next(new GlobalError("Invalid Id: DELETE", 404));
-
-  res.status(200).json({
-    success: true,
-    message: "deleted",
-  });
-});
+exports.deleteTour = deleteOne(Tour);
 
 exports.createTour = asyncCatch(async (req, res, next) => {
   const newTour = await Tour.create(req.body);
@@ -135,5 +127,3 @@ exports.getTourStats = asyncCatch(async (req, res) => {
 
   res.status(200).json({ success: true, data: { data } });
 });
-
-

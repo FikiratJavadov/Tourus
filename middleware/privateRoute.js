@@ -15,7 +15,7 @@ const privateRoute = asyncCatch(async (req, res, next) => {
     token = req.headers.authorization.split(" ")[1];
   }
 
-  if (!token) return next(new GlobalError("Please provide a token!"));
+  if (!token) return next(new GlobalError("Please Log in!"));
 
   //2) Check if token is Valid
   const verifiPromise = promisify(jwt.verify);

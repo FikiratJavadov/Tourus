@@ -6,9 +6,11 @@ const errorHandler = require("./error/errorHandler");
 const GlobalError = require("./error/GlobalError");
 const rateLimit = require("express-rate-limit");
 const helmet = require("helmet");
+const cors = require("cors");
 
 const toursRouter = require("./routes/tourRouter");
 const userRouter = require("./routes/userRouter");
+const reviewRoute = require("./routes/reviewRoute");
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -23,6 +25,7 @@ const app = express();
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
+app.use(cors());
 app.use(express.json());
 app.use(helmet());
 
@@ -32,6 +35,7 @@ app.use(limiter);
 //!Routes
 app.use("/api/v1/tours", toursRouter);
 app.use("/api/v1/users", userRouter);
+app.use("/api/v1/reviews", reviewRoute);
 
 app.use((req, res, next) => {
   const message = new GlobalError(`The ${req.originalUrl} does not exist`);

@@ -43,7 +43,7 @@ exports.login = asyncCatch(async (req, res, next) => {
   //!Sign JWT
   const token = signJWT(user._id);
 
-  res.json({ success: true, data: { token: token } });
+  res.json({ success: true, data: { token: token, user } });
 });
 
 exports.forgetPassword = asyncCatch(async (req, res, next) => {

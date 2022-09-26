@@ -10,12 +10,12 @@ function sendDevError(err, req, res, statusCode) {
 }
 function sendProdError(err, req, res) {
   if (err.Operational) {
-    res.json({
+    res.status(500).json({
       success: false,
       message: err.message,
     });
   } else {
-    res.json({
+    res.status(500).json({
       success: false,
       message: "Ops! Something went wrong...",
     });
@@ -40,7 +40,7 @@ const handleTokenError = (err) => {
 const handleValidationError = (err) => {
   const er = Object.values(err.errors).join(",");
 
-  return new GlobalError(er);
+  return new GlobalError(er, 400);
 
   // console.log(values);
 };
