@@ -19,7 +19,7 @@ router.get(
 router.get("/top-3", setHeaderQuery, tourController.getAllTours);
 router.get("/:id", tourController.getOneTour);
 
-
+//!Here
 
 router.use(privateRoute);
 router.use(access("admin"));

@@ -125,16 +125,13 @@ tourSchema.virtual("reviews", {
   localField: "_id",
 });
 
+
+
 //Document base middleware - Before create/after create
 tourSchema.pre("save", function (next) {
   this.slug = slugify(this.name, "-");
   next();
 });
-
-
-
-
-
 
 // tourSchema.post("save", function (doc, next) {
 //   this.slug = slugify(this.name, "-");

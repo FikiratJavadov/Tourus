@@ -8,9 +8,14 @@ const rateLimit = require("express-rate-limit");
 const helmet = require("helmet");
 const cors = require("cors");
 
+var bodyParser = require("body-parser");
+
+// Put these statements before you define any routes.
+
 const toursRouter = require("./routes/tourRouter");
 const userRouter = require("./routes/userRouter");
 const reviewRoute = require("./routes/reviewRoute");
+const bookingRoute = require("./routes/bookingRoute");
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -36,11 +41,14 @@ app.use(limiter);
 app.use("/api/v1/tours", toursRouter);
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/reviews", reviewRoute);
+app.use("/api/v1/booking", bookingRoute);
 
 app.use((req, res, next) => {
   const message = new GlobalError(`The ${req.originalUrl} does not exist`);
   next(message);
 });
+
+console.log("run!!");
 
 app.use(errorHandler);
 

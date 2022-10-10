@@ -1,1 +1,2 @@
 mongodb+srv://fikret:12345@cluster0.ok9ke.mongodb.net/test
+stripe = !F9Xn#4]zw{]Y2q
