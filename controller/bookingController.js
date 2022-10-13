@@ -1,32 +1,34 @@
 const { asyncCatch } = require("../utils/asyncCatch");
 const GlobalError = require("../error/GlobalError");
-
-//*Stripe
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+const Tour = require("../model/tour");
 
 exports.checkout = asyncCatch(async (req, res) => {
-  const tourId = req.params.tourId;
-
-  const product = await stripe.products.create({ name: "Start wars" });
-
-  const price = await stripe.prices.create({
-    product: product.id,
-    unit_amount: 2000,
-    currency: "usd",
-  });
-
-  const checkout = await stripe.checkout.sessions.create({
+  console.log(req.params.tourId);
+  const tour = await Tour.findById(req.params.tourId);
+  const session = await stripe.checkout.sessions.create({
     line_items: [
       {
         // Provide the exact Price ID (for example, pr_1234) of the product you want to sell
-        price: price.id,
+        price_data: {
+          currency: "usd",
+          product_data: {
+            name: tour.name,
+          },
+          unit_amount: tour.price * 100,
+        },
         quantity: 1,
       },
     ],
+
+    payment_method_types: ["card"],
     mode: "payment",
-    success_url: `${req.protocol}://${req.get("host")}`,
-    cancel_url: `${req.protocol}://${req.get("host")}/error`,
+    // client_reference_id: req.params.tourId,
+    customer_creation: "always",
+    customer_email: req.user.email,
+    success_url: `http://localhost:3000`,
+    cancel_url: `http://localhost:3000/error`,
   });
 
-  res.status(200).json({ success: true, checkout });
+  res.status(200).json({ success: true, session });
 });

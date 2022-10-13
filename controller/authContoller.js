@@ -17,15 +17,11 @@ function signJWT(id) {
 }
 
 exports.signup = asyncCatch(async (req, res, next) => {
-  console.log(req.files);
-  return;
   const user = await User.create({
     name: req.body.name,
     email: req.body.email,
     password: req.body.password,
     passwordConfirm: req.body.passwordConfirm,
-    photo: data.secure_url,
-    imgId: data.public_id,
   });
 
   const url = `${req.protocol}://${req.get("host")}`;
